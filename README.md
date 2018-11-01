@@ -124,12 +124,14 @@ def get_Q3()
 Used query in the function:
 
 ```
-select authors.name, count(log.path) as views
-from authors
-join articles on authors.id = articles.author
-left join log on log.path like '%' || articles.slug
-group by authors.name
-order by views desc
+select * from
+    (select time::date as date,
+            (count(case when status like '4%'then 1 else null end)
+            * 100.0 / count(*)) as error_per
+    from log
+    group by date
+    order by error_per desc) errors
+where errors.error_per > 1
 ```
 
 ## Output
